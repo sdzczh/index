@@ -1,0 +1,58 @@
+/* ---------------
+ * Global Styles 
+ * --------------- */
+
+
+html, 
+body,
+#wrapper {
+	height: 100%;
+}
+
+body {
+	font-family: $font-family-body;
+	font-size: $body-font-size;
+	color: $body-font-color;
+	line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: $font-family-heading;
+}
+
+a {
+	color: darken($brand-primary, 8%);
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		color: $brand-primary;
+		text-decoration: none;
+	}
+}
+
+section {
+	padding: 60px 0;
+
+	.heading {
+		margin: 0 0 50px 0;
+		font-size: 48px;
+		font-weight: 300;
+		text-align: center;
+		line-height: .8;
+
+		&:after {
+			content: '';
+			display: block;
+			border-top: 1px solid $brand-primary;
+			width: 60px;
+			margin: 0 auto;
+			margin-top: 35px;
+		}
+	}
+
+	.lead {
+		margin-bottom: 50px;
+	}
+}
+
