@@ -41,5 +41,5 @@ $(document).ready( function() {
 		transitionStyle: 'fadeUp'
 	});
 
-
+	
 });
