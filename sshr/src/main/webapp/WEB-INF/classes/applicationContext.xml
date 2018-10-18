@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+	http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd
+    http://www.springframework.org/schema/websocket 
+    http://www.springframework.org/schema/websocket/spring-websocket.xsd 
+    http://www.springframework.org/schema/util 
+    http://www.springframework.org/schema/util/spring-util.xsd 
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/task
+   	http://www.springframework.org/schema/task/spring-task-3.2.xsd
+   	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+        
+     <!-- 激活自动代理功能 -->   
+     <aop:aspectj-autoproxy proxy-target-class="true"/>
+        
+   	<!-- 启用Spring注解 -->
+	<context:annotation-config/> 
+	<context:component-scan base-package="com.crystal"> 
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" /> 
+	</context:component-scan> 
+  	<task:annotation-driven />    
+	
+	<!-- 加载数据配置文件properties 自定义加密方式-->
+ 	<bean id="propertyConfigurer" class="com.crystal.utils.EncryptPropertyPlaceholderConfigurer">    
+        <property name="locations">    
+            <list>    
+                <value>classpath:jdbc.properties</value>    
+                <value>classpath:redis.properties</value>    
+            </list>    
+        </property>    
+    </bean>  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   
+<!-- Redis连接池 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxTotal" value="10"></property>  
+        <property name="maxIdle" value="10"></property>  
+        <property name="minIdle" value="2"></property>  
+        <property name="maxWaitMillis" value="15000"></property>  
+        <property name="minEvictableIdleTimeMillis" value="300000"></property>  
+        <property name="numTestsPerEvictionRun" value="3"></property>  
+        <property name="timeBetweenEvictionRunsMillis" value="60000"></property>  
+        <property name="testOnBorrow" value="true"></property>  
+        <property name="testOnReturn" value="true"></property>  
+        <property name="testWhileIdle" value="true"></property>  
+    </bean>  
+    
+ <!-- Redis链接 
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" destroy-method="destroy">  
+        <property name="hostName" value="${redis.host}" />  
+        <property name="port" value="${redis.port}" />  
+        <property name="timeout" value="15000" />  
+        <property name="database" value="0" />  
+        <property name="password" value="${redis.pass}" />  
+        <property name="usePool" value="true" />  
+        <property name="poolConfig" ref="jedisPoolConfig" />  
+    </bean>  
+   -->  
+<!-- redis template definition p表示对该bean里面的属性进行注入，格式为p:属性名=注入的对象 效果与在bean里面使用<property>标签一样
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connection-factory-ref="jedisConnectionFactory">  
+        <!-- 序列化方式 建议key/hashKey采用StringRedisSerializer。
+        <property name="keySerializer">  
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />  
+        </property>  
+        <property name="hashKeySerializer">  
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />  
+        </property>  
+        <property name="valueSerializer">  
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />  
+        </property>  
+        <property name="hashValueSerializer">  
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />  
+        </property>  
+    </bean>  
+     -->  
+    <!-- 对string操作的封装
+    <bean id="redisStr" class="org.springframework.data.redis.core.StringRedisTemplate" p:connection-factory-ref="jedisConnectionFactory" />   
+ 
+  -->  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+    <!-- 加载配置文件--无加密方式
+	    <context:property-placeholder location="classpath:XXX.properties" />  
+     -->
+    <!-- 配置数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">      
+	    <property name="driverClass" value="${driverclass}"/>      
+	    <property name="jdbcUrl" value="${url}"/>      
+	    <property name="user" value="${username}"/>      
+	    <property name="password" value="${password}"/>
+	    <property name="minPoolSize" value="1" />
+		<property name="maxPoolSize" value="300" />
+		<property name="maxIdleTime" value="60" />
+		<property name="acquireIncrement" value="5" />
+		<property name="initialPoolSize" value="1" />
+		<property name="idleConnectionTestPeriod" value="60" />      
+	</bean>  
+
+	<!-- 	SessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>  
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<!-- 显示SQL语句 -->
+				<prop key="hibernate.show_sql">false</prop>  
+				<!-- 格式化SQL语句 -->
+                <prop key="hibernate.format_sql">false</prop>
+				<!-- 自动建表
+                 -->
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<!-- 必须配置好此项，否则报 org.hibernate.MappingException: Unknown entity,集成Hibernate -->
+		<property name="packagesToScan" value="com.crystal" /> 
+	</bean>
+	
+    <bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+	<!-- 第二种配置事务的方式 ，代理-->
+	
+	<bean id="transactionProxy"
+	    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"    abstract="true">
+	    <property name="transactionManager" ref="transactionManager"></property>
+	    <property name="transactionAttributes">
+	        <props>
+	            <prop key="add*">PROPAGATION_REQUIRED, -Exception</prop>
+	            <prop key="create*">PROPAGATION_REQUIRED, -Exception</prop>
+	            <prop key="update*">PROPAGATION_REQUIRED, -Exception</prop>
+	            <prop key="remove*">PROPAGATION_REQUIRED, -Exception</prop>
+	            <prop key="del*">PROPAGATION_REQUIRED, -Exception</prop>
+	            <prop key="*">PROPAGATION_REQUIRED, -Exception</prop>
+	        </props>
+	    </property>
+	</bean>
+	
+	
+   <!--启动注解用注解来管理事务 -->  
+   <tx:annotation-driven transaction-manager="transactionManager" />
+   	    
+</beans>
